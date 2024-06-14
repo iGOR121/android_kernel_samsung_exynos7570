@@ -1,4 +1,4 @@
-menuconfig SEC_SIPC_MODEM_IF
+	menuconfig SEC_SIPC_MODEM_IF
 	bool "Samsung Mobile SIPC Modem Interface"
 	default n
 	---help---
@@ -104,5 +104,10 @@ config FREE_CP_RSVD_MEMORY
 config HW_REV_DETECT
 	bool "Support HW REV Detect"
 	default n
+
+config MODEM_PIE_REV
+	bool "Android 9.0 Bootloader/Modem Support"
+	default n
+
 endmenu
 endif
