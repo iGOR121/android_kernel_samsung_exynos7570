@@ -141,8 +141,8 @@
                 cl0_idx_num = <17>;
                 cl0_max_support_idx = <5>;
                 cl0_min_support_idx = <14>;
-                cl0_boot_max_qos = <1378000>;
-                cl0_boot_min_qos = <1378000>;
+                cl0_boot_max_qos = <1478000>;
+                cl0_boot_min_qos = <1478000>;
                 cl0_boot_lock_time = <40000000>;
                 cl0_en_ema = <0>;
                 cl0_regulator = "BUCK1";
@@ -486,21 +486,6 @@
 		sbi_uart_noti_pos = <16>;
 	};
 
-	/* USIM DETECTION FOR CP */
-	usim_det {
-		compatible = "samsung,exynos-usim-detect";
-
-		mbx_ap2cp_united_status = <2>;
-
-		mif,int_usim0_det_level = <4>;
-		mif,int_usim1_det_level = <5>;
-
-		sbi_usim0_det_mask = <1>;
-		sbi_usim0_det_pos = <17>;
-		sbi_usim1_det_mask = <1>;
-		sbi_usim1_det_pos = <18>;
-	};
-
 	/* UART_USI_0 */
 	serial_3: uart@13910000 {
 		compatible = "samsung,exynos-uart";
@@ -538,7 +523,6 @@
 		interrupts = <0 429 0>;
 		#address-cells = <1>;
 		#size-cells = <0>;
-		samsung,i2c-clk-logging;
 		pinctrl-names = "default";
 		pinctrl-0 = <&i2c1_bus>;
 		clocks = <&clock 312>, <&clock 312>;
@@ -1026,7 +1010,7 @@
 		ip_ver = <17>;
 		clock_rate = <415000000>;
 		min_rate = <100000>;
-		num_qos_steps = <2>;
+		num_qos_steps = <1>;
 		mfc_qos_table {
 			mfc_qos_variant_0 {
 				thrd_mb = <0>;
@@ -1037,15 +1021,6 @@
 				freq_kfc = <0>;
 				has_enc_table = <0>;
 			};
-			mfc_qos_variant_1 {
-				thrd_mb = <244800>;
-				freq_mfc = <0>;
-				freq_int = <415000>;
-				freq_mif = <666000>;
-				freq_cpu = <0>;
-				freq_kfc = <0>;
-				has_enc_table = <0>;
-			};			
 		};
 	};
 
@@ -1503,22 +1478,21 @@
 			<&clock 43>;
 
 		status = "ok";
-	};
-
+	 };
 	fm@14840000 {
 		compatible = "samsung,exynos7570-fm";
-		reg = <0x0 0x14840000 0x2000>,
-			<0x0 0x11C80000 0x1000>,
-			<0x0 0x10580000 0x100>,
-			<0x0 0x148D0000 0x500>,
-			<0x0 0x10460000 0x3000>,
-			<0x0 0x13730000 0x2000>,
-			<0x0 0x14880000 0x100>;
+		reg = <0x0 0x14840000 0x2000>, 
+                       <0x0 0x11C80000 0x1000>,
+                       <0x0 0x10580000 0x100>,
+                       <0x0 0x148D0000 0x500>,
+                       <0x0 0x10460000 0x3000>,
+                       <0x0 0x13730000 0x2000>,
+                       <0x0 0x14880000 0x100>;
 		interrupts = <0 195 0>;
-		clocks = <&clock 743>;  /* fm_52M_div */
+		clocks = <&clock 743>;	/* fm_52M_div */
 		clock-names = "oscclk_fm_52m_div";
 		samsung,syscon-phandle = <&pmu_system_controller>;
-		samsung,power-domain = <&spd_fm>;
+		samsung,power-domain = <&spd_aud>;
 		status = "okay";
 	};
 

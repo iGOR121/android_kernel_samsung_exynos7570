@@ -1,11 +1,11 @@
 /*
- * SAMSUNG EXYNOS7570 SoC device tree source
+ * SAMSUNG EXYNOS7270 SoC device tree source
  *
  * Copyright (c) 2015 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
  *
- * SAMSUNG EXYNOS7570 SoC device nodes are listed in this file.
- * EXYNOS7570 based board files can include this file and provide
+ * SAMSUNG EXYNOS7270 SoC device nodes are listed in this file.
+ * EXYNOS7270 based board files can include this file and provide
  * values for board specfic bindings.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 #include <dt-bindings/thermal/thermal.h>
 #include "exynos7570-pinctrl.dtsi"
 #include "exynos7570-itm.dtsi"
-#include "exynos7570-pm-domains.dtsi"
+#include "exynos7270-pm-domains.dtsi"
 
 / {
 	compatible = "samsung,armv8", "samsung,exynos7570";
@@ -98,20 +98,6 @@
 			enable-method = "psci";
 			cpu-idle-states = <&CPU_SLEEP>;
 		};
-		cpu@2 {
-			device_type = "cpu";
-			compatible = "arm,cortex-a53", "arm,armv8";
-			reg = <0x0 0x2>;
-			enable-method = "psci";
-			cpu-idle-states = <&CPU_SLEEP>;
-		};
-		cpu@3 {
-			device_type = "cpu";
-			compatible = "arm,cortex-a53", "arm,armv8";
-			reg = <0x0 0x3>;
-			enable-method = "psci";
-			cpu-idle-states = <&CPU_SLEEP>;
-		};
 		idle-states {
 			entry-method = "arm,psci";
 
@@ -139,10 +125,10 @@
 		compatible = "samsung,exynos-sc-cpufreq";
 
                 cl0_idx_num = <17>;
-                cl0_max_support_idx = <5>;
+                cl0_max_support_idx = <9>;
                 cl0_min_support_idx = <14>;
-                cl0_boot_max_qos = <1378000>;
-                cl0_boot_min_qos = <1378000>;
+                cl0_boot_max_qos = <1040000>;
+                cl0_boot_min_qos = <1040000>;
                 cl0_boot_lock_time = <40000000>;
                 cl0_en_ema = <0>;
                 cl0_regulator = "BUCK1";
@@ -318,7 +304,7 @@
 
 		/* regulator */
 		use_reg = "true";
-		use_pd_off = "false";
+		use_pd_off = "true";
 		reg_name = "BUCK1";
 		/* cold, cold_limit, min_cold, max_uV */
 		volt_info = <25000 1250000 0 1300000>;
@@ -362,6 +348,11 @@
 		use_tmu = "true";
 		use_cl_dvfs = "false";
 		use_sw_clk = "false";
+	};
+
+	ect {
+		parameter_address = <0x58EDA000>;
+		parameter_size = <0x6000>;
 	};
 
 	pinctrl_0: pinctrl@139F0000 {
@@ -464,41 +455,14 @@
 	serial_2: uart@13820000 {
 		compatible = "samsung,exynos-uart";
 		samsung,separate-uart-clk;
-		samsung,alive-io;
 		reg = <0x0 0x13820000 0x100>;
 		samsung,fifo-size = <256>;
 		interrupts = <0 423 0>;
-		pinctrl-names = "default", "uart_sleep";
+		pinctrl-names = "default";
 		pinctrl-0 = <&uart2_bus>;
-		pinctrl-1 = <&uart2_sleep>;
 		clocks = <&clock 360>, <&clock 20>, <&clock 20>;
 		clock-names = "gate_pclk2", "gate_uart2", "sclk_uart2";
 		status = "disabled";
-	};
-
-	/* UART SWITCH FOR CP */
-	uart_sel {
-		compatible = "samsung,exynos-uart-sel";
-
-		int_ap2cp_uart_noti = <15>;
-		mbx_ap2cp_united_status = <2>;
-		sbi_uart_noti_mask = <0x1>;
-		sbi_uart_noti_pos = <16>;
-	};
-
-	/* USIM DETECTION FOR CP */
-	usim_det {
-		compatible = "samsung,exynos-usim-detect";
-
-		mbx_ap2cp_united_status = <2>;
-
-		mif,int_usim0_det_level = <4>;
-		mif,int_usim1_det_level = <5>;
-
-		sbi_usim0_det_mask = <1>;
-		sbi_usim0_det_pos = <17>;
-		sbi_usim1_det_mask = <1>;
-		sbi_usim1_det_pos = <18>;
 	};
 
 	/* UART_USI_0 */
@@ -531,6 +495,16 @@
 		status = "disabled";
 	};
 
+	/* UART SWITCH FOR CP */
+	uart_sel {
+		compatible = "samsung,exynos-uart-sel";
+
+		int_ap2cp_uart_noti = <15>;
+		mbx_ap2cp_united_status = <2>;
+		sbi_uart_noti_mask = <0x1>;
+		sbi_uart_noti_pos = <16>;
+	};
+
 	/* I2C_MUIC */
 	i2c_1: i2c@13880000 {
 		compatible = "samsung,s3c2440-i2c";
@@ -538,7 +512,6 @@
 		interrupts = <0 429 0>;
 		#address-cells = <1>;
 		#size-cells = <0>;
-		samsung,i2c-clk-logging;
 		pinctrl-names = "default";
 		pinctrl-0 = <&i2c1_bus>;
 		clocks = <&clock 312>, <&clock 312>;
@@ -977,11 +950,6 @@
 		status = "disabled";
 	};
 
-	secgpio_dvs {
-		compatible = "samsung,exynos7570-secgpio-dvs";
-		status = "okay";
-	};
-
 	dwmmc_0: dwmmc0@13540000 {
 		compatible = "samsung,exynos-dw-mshc";
 		reg = <0x0 0x13540000 0x2000>;
@@ -1026,7 +994,7 @@
 		ip_ver = <17>;
 		clock_rate = <415000000>;
 		min_rate = <100000>;
-		num_qos_steps = <2>;
+		num_qos_steps = <1>;
 		mfc_qos_table {
 			mfc_qos_variant_0 {
 				thrd_mb = <0>;
@@ -1037,15 +1005,6 @@
 				freq_kfc = <0>;
 				has_enc_table = <0>;
 			};
-			mfc_qos_variant_1 {
-				thrd_mb = <244800>;
-				freq_mfc = <0>;
-				freq_int = <415000>;
-				freq_mif = <666000>;
-				freq_cpu = <0>;
-				freq_kfc = <0>;
-				has_enc_table = <0>;
-			};			
 		};
 	};
 
@@ -1081,7 +1040,7 @@
 		clock-names = "dsim_pclk", "dphy_escclk", "dphy_byteclk";
 
 		/* number of data lanes in use */
-		data_lane_cnt = <4>;
+		data_lane_cnt = <1>;
 	};
 
 	decon_0: decon_fb@14830000 {
@@ -1108,13 +1067,13 @@
 		n_sink_pad = <3>;
 		n_src_pad = <1>;
 		default_win = <0>;
-		trig_mode = <1>;        /* 0: hw trigger, 1: sw trigger */
+		trig_mode = <0>;        /* 0: hw trigger, 1: sw trigger */
 		dsi_mode = <0>;         /* 0: single dsi, 1: dual dsi */
-#if 0
+
 		pinctrl-names = "decon_te_on", "decon_te_off";
 		pinctrl-0 = <&decon_te_on>;
 		pinctrl-1 = <&decon_te_off>;
-
+#if 0
 		cam-stat {
 			/* ISP_STATUS register */
 			reg = <0x0 0x10484044 0x4>;
@@ -1128,7 +1087,6 @@
 		mcu,name = "mcu_ipc_cp";
 		mcu,id = <0>;
 		interrupts = <0 369 0 >;
-		mcu,irq_affinity_mask = <3>;
 	};
 
 	mailbox_gnss: mcu_ipc@10570000 {
@@ -1187,36 +1145,18 @@
 		reg_tx_tail = <1 0>;
 		fault_info = <1 0x100000 0x100000>;
 
+		shmem,base = <0x98000000>;
+		shmem,size = <0x200000>;
 		shmem,ipc_offset = <0x180000>;
 		shmem,ipc_size = <0x80000>;
 		shmem,ipc_reg_cnt = <32>;
-	};
-
-	cmu_fsys: cmu_fsys@0x13730000 {
-		compatible = "samsung,exynos7570-cmu_fsys", "syscon";
-		reg = <0x0 0x13730000 0x2000>;
-	};
-
-	scsc_wifibt: scsc_wifibt@10580000 {
-		compatible = "samsung,scsc_wifibt";
-		/* Mailbox registers */
-		reg = <0x0 0x10580000 0x180>;
-		interrupts = <0 376 4>, <0 21 4>, <0 476 4>;
-		interrupt-names = "MBOX","ALIVE","WDOG";
-		/* PMU alive handle */
-		samsung,syscon-phandle = <&pmu_system_controller>;
-		/* USBPLL ownership */
-		samsung,syscon-cmu_fsys = <&cmu_fsys>;
-		usbpll,owner="y";
-		usbpll,udelay=<20>;
-		status = "okay";
 	};
 
 	iommu-domain_mfc_mscl {
 		compatible = "samsung,exynos-iommu-bus";
 		#address-cells = <2>;
 		#size-cells = <1>;
-		domain-clients = <&smfc>, <&scaler_0>, <&mfc_0>, <&fimc_is>, <&fimc_is_sensor0>, <&fimc_is_sensor1>;
+		domain-clients = <&smfc>, <&scaler_0>, <&mfc_0>;
 		ranges;
 
 		smfc: smfc@12C20000 {
@@ -1241,8 +1181,7 @@
 		sysmmu_mfc_mscl: sysmmu@12C80000 {
 			compatible = "samsung,exynos7420-sysmmu";
 			reg = <0x0 0x12C80000 0x3000>;
-			interrupts = <0 352 0>,
-					<0 409 0>;
+			interrupts = <0 352 0>;
 			clocks = <&clock CLK_VCLK_SYSMMU_MFC_MSCL>;
 			clock-names = "aclk";
 			samsung,power-domain = <&pd_mfcmscl>;
@@ -1252,31 +1191,9 @@
 						<AW(0x22) SYSMMU_BL4_PREFETCH_ASCENDING>,
 						<AW(0x26) SYSMMU_BL4_PREFETCH_ASCENDING>,
 						<AW(0x2A) SYSMMU_BL4_PREFETCH_ASCENDING>;
-			sysmmu,secure_reg = <0x12C70000>;
-			sysmmu,handle_secure-irq;
-			master_ip_list = <&smfc>, <&scaler_0>, <&mfc_0>, <&fimc_is>;
+			master_ip_list = <&smfc>, <&scaler_0>, <&mfc_0>;
 		};
 
-		sysmmu_isp: sysmmu@0x14470000 {
-			compatible = "samsung,exynos7420-sysmmu";
-			reg = <0x0 0x14470000 0x3000>;
-			interrupts = <0 128 0>;
-			qos = <15>;
-			clocks = <&clock CLK_VCLK_SYSMMU_ISP>;
-			clock-names = "aclk";
-			samsung,power-domain = <&pd_isp>;
-			sysmmu,v7tlb_property = <AW(0x0) SYSMMU_BL1_PREFETCH_PREDICTION>,
-						<AW(0x4) SYSMMU_BL1_PREFETCH_PREDICTION>,
-						<AR(0x1) SYSMMU_BL1_PREFETCH_PREDICTION>,
-						<AW(0x1) SYSMMU_BL1_PREFETCH_PREDICTION>,
-						<AW(0x5) SYSMMU_BL1_PREFETCH_PREDICTION>,
-						<AW(0x2) SYSMMU_BL1_PREFETCH_PREDICTION>,
-						<AW(0x6) SYSMMU_BL1_PREFETCH_PREDICTION>,
-						<AW(0xA) SYSMMU_BL1_PREFETCH_PREDICTION>,
-						<AW(0x3) SYSMMU_BL1_PREFETCH_PREDICTION>,
-						<AR(0x3) SYSMMU_BL2_NO_PREFETCH>;
-			master_ip_list = <&fimc_is>, <&fimc_is_sensor0>, <&fimc_is_sensor1>;
-		 };
 	};
 
 	iommu-domain_disp {
@@ -1290,8 +1207,7 @@
 		sysmmu_disp: sysmmu@14860000 {
 			compatible = "samsung,exynos7420-sysmmu";
 			reg = <0x0 0x14860000 0x3000>;
-			interrupts = <0 192 0>,
-					<0 193 0>;
+			interrupts = <0 192 0>;
 			qos = <15>;
 			clocks = <&clock CLK_VCLK_SYSMMU_DISP_AUD>;
 			clock-names = "aclk";
@@ -1300,10 +1216,38 @@
 						<AR(0x2) SYSMMU_BL1_NO_PREFETCH>,
 						<AR(0x4) SYSMMU_BL1_NO_PREFETCH>,
 						<AR(0x5) SYSMMU_BL1_NO_PREFETCH>;
-			sysmmu,secure_reg = <0x14850000>;
-			sysmmu,handle_secure-irq;
 			master_ip_list = <&decon_0>;
 		};
+	};
+
+	iommu-domain_fimc-is {
+		compatible = "samsung,exynos-iommu-bus";
+		#address-cells = <2>;
+		#size-cells = <1>;
+		ranges;
+
+		/*domain-clients = <&fimc_is>, <&fimc_is_sensor0>,
+		 * <&fimc_is_sensor1>;*/
+
+		sysmmu_isp: sysmmu@0x144A0000 {
+			compatible = "samsung,exynos7420-sysmmu";
+			reg = <0x0 0x14470000 0x3000>;
+			interrupts = <0 128 0>;
+			qos = <15>;
+			clocks = <&clock CLK_VCLK_SYSMMU_ISP>;
+			clock-names = "aclk";
+			samsung,power-domain = <&pd_isp>;
+			sysmmu,v7tlb_property = <AR(0x0) SYSMMU_BL1_PREFETCH_PREDICTION>,
+						<AW(0x4) SYSMMU_BL1_PREFETCH_PREDICTION>,
+						<AR(0x1) SYSMMU_BL1_PREFETCH_PREDICTION>,
+						<AW(0x1) SYSMMU_BL1_PREFETCH_PREDICTION>,
+						<AW(0x5) SYSMMU_BL1_PREFETCH_PREDICTION>,
+						<AW(0x2) SYSMMU_BL1_PREFETCH_PREDICTION>,
+						<AW(0x6) SYSMMU_BL1_PREFETCH_PREDICTION>,
+						<AW(0xA) SYSMMU_BL1_PREFETCH_PREDICTION>,
+						<AW(0x3) SYSMMU_BL1_PREFETCH_PREDICTION>,
+						<AR(0x3) SYSMMU_BL2_NO_PREFETCH>;
+		 };
 	};
 
 	watchdog@10170000 {
@@ -1347,14 +1291,6 @@
 			device_type = "cs";
 			dbg-offset = <0x510000>;
 		};
-		cs_apollo2@600000 {
-			device_type = "cs";
-			dbg-offset = <0x610000>;
-		};
-		cs_apollo3@700000 {
-			device_type = "cs";
-			dbg-offset = <0x710000>;
-		};
 	};
 
 	udc: usb@13600000 {
@@ -1374,7 +1310,6 @@
 			maximum-speed = "high-speed";
 			is_not_vbus_pad;
 			suspend_clk_freq = <67000000>;
-			enable_sprs_transfer;
 			phys = <&usbdrd_phy 0>, <&usbdrd_phy 1>;
 			phy-names = "usb2-phy", "usb3-phy";
 		};
@@ -1388,8 +1323,6 @@
 		#phy-cells = <1>;
 		samsung,pmu-syscon = <&pmu_system_controller>;
 		is_not_vbus_pad;
-		use_additional_tuning;
-		request_extrefclk;
 		uart_io_share_enable = <1>;
 		uart_io_share_offset = <0x6200>;
 		uart_io_share_mask = <0x1>;
@@ -1421,181 +1354,5 @@
 		compatible = "samsung,exynos-pwm-clock";
 		reg = <0x0 0x13970000 0x50>;
 		#clock-cells = <1>;
-	};
-
-	mipi_phy_csis: phy_phy_csis@144F1040 {
-		compatible = "samsung,mipi-phy-csis";
-		reg = <0x0 0x144F1040 0x4>; /* SYSREG address for reset */
-		samsung,pmu-syscon = <&pmu_system_controller>;
-		isolation = <0x070C	0x0714>; /* PMU address offset 0x714 M0S4 */
-		reset = <1	0>; /* reset bit [0] */
-		#phy-cells = <1>;
-	};
-
-	fimc_is_sensor0: fimc_is_sensor0@14420000 {
-		 /* REAR */
-		compatible = "samsung,exynos5-fimc-is-sensor";
-		#pb-id-cells = <0>;
-		reg = <0x0 0x14420000 0x10000>, /* MIPI-CSI0 */
-			 <0x0 0x14410000 0x10000>; /* FIMC-BSC */
-		interrupts = <0 144 0>, /* MIPI-CSI0 */
-				<0 137 0>; /* FIMC-BSC */
-		samsung,power-domain = <&pd_isp>;
-
-		phys = <&mipi_phy_csis 1>;
-		phy-names = "csis_dphy";
-		clock-names =
-			"mif_isp_sensor0";
-		clocks = <&clock 43>;
-	};
-
-	fimc_is_sensor1: fimc_is_sensor1@14420000 {
-		 /* FRONT */
-		compatible = "samsung,exynos5-fimc-is-sensor";
-		#pb-id-cells = <0>;
-		reg = <0x0 0x14420000 0x10000>, /* MIPI-CSI0 */
-			 <0x0 0x14410000 0x10000>; /* FIMC-BSC */
-		interrupts = <0 144 0>, /* MIPI-CSI0 */
-				<0 137 0>; /* FIMC-BSC */
-		samsung,power-domain = <&pd_isp>;
-
-		phys = <&mipi_phy_csis 0>;
-		phy-names = "csis_dphy";
-		clock-names =
-			"mif_isp_sensor0";
-		clocks = <&clock 43>;
-	};
-
-	fimc_is: fimc_is@14400000 {
-		compatible = "samsung,exynos5-fimc-is";
-		#pb-id-cells = <0>;
-		reg = <0x0 0x14400000 0xC400>, /* FIMC-ISP */
-			 <0x0 0x14430000 0x2000>, /* MC-Scaler */
-			 <0x0 0x14440000 0x10000>, /* FIMC-VRA CH0 */
-			 <0x0 0x14450000 0x10000>, /* FIMC-VRA CH1 */
-			 <0x0 0x14480000 0xC400>, /* FIMC-ISP(setB) */
-			 <0x0 0x12C00000 0x2000>; /* MC-Scaler M2M */
-
-		interrupts = <0 139 0>, /* FIMC-ISP0 */
-				<0 140 0>, /* FIMC-ISP1 */
-				<0 141 0>, /* FIMC-ISP2 */
-				<0 142 0>, /* MC-SCALER */
-				<0 146 0>, /* FIMC-VRA */
-				<0 400 0>; /* MC-SCALER M2M */
-		samsung,power-domain = <&pd_isp>;
-
-		clock-names =
-			"oscclk",
-			"isp_ppmu",
-			"isp_bts",
-			"isp_cam",
-			"isp_vra",
-			"umux_isp_clkphy_isp_s_rxbyteclkhs0_s4_user",
-			"gate_mscl",
-			"mif_isp_sensor0";
-		clocks = <&clock 1>,
-			<&clock 801>,
-			<&clock 802>,
-			<&clock 803>,
-			<&clock 804>,
-			<&clock 810>,
-			<&clock 610>,
-			<&clock 43>;
-
-		status = "ok";
-	};
-
-	fm@14840000 {
-		compatible = "samsung,exynos7570-fm";
-		reg = <0x0 0x14840000 0x2000>,
-			<0x0 0x11C80000 0x1000>,
-			<0x0 0x10580000 0x100>,
-			<0x0 0x148D0000 0x500>,
-			<0x0 0x10460000 0x3000>,
-			<0x0 0x13730000 0x2000>,
-			<0x0 0x14880000 0x100>;
-		interrupts = <0 195 0>;
-		clocks = <&clock 743>;  /* fm_52M_div */
-		clock-names = "oscclk_fm_52m_div";
-		samsung,syscon-phandle = <&pmu_system_controller>;
-		samsung,power-domain = <&spd_fm>;
-		status = "okay";
-	};
-
-	exynos-powermode {
-		compatible = "exynos,powermode";
-
-		/*	        sicd		sicd_cpd	aftr		stop
-		 * 		lpd		lpa		alpa		dstop
-		 *		sleep
-		 */
-		wakeup_mask =  <0x400F91E1>,	<0x0>,		<0x0>,		<0x0>,
-			       <0x0>,		<0x0>,		<0x0>,		<0x0>,
-			       <0x400FFFFE>;
-		wakeup_mask2 = <0x0>,		<0x0>,		<0x0>,		<0x0>,
-			       <0x0>,		<0x0>,		<0x0>,		<0x0>,
-			       <0xFFFF00FF>;
-		wakeup_mask3 = <0x0>,		<0x0>,		<0x0>,		<0x0>,
-			       <0x0>,		<0x0>,		<0x0>,		<0x0>,
-			       <0xFFFF00FF>;
-
-		cpd_residency = <3000>;
-		sicd_residency = <3000>;
-
-		sicd_enabled = <0>;
-
-		idle-ip = "136c0000.pwm",		/* idle ip index : 0 */
-			  "10550000.adc",		/* idle ip index : 1 */
-
-			  "10510000.hsi2c",		/* idle ip index : 2 */
-			  "13950000.hsi2c",		/* idle ip index : 3 */
-			  "13960000.hsi2c",		/* idle ip index : 4 */
-			  "138a0000.hsi2c",		/* idle ip index : 5 */
-			  "138b0000.hsi2c",		/* idle ip index : 6 */
-			  "138c0000.hsi2c",		/* idle ip index : 7 */
-			  "138f0000.hsi2c",		/* idle ip index : 8 */
-
-			  "13870000.i2c",		/* idle ip index : 9 */
-			  "13880000.i2c",		/* idle ip index : 10 */
-			  "13890000.i2c",		/* idle ip index : 11 */
-			  "13840000.i2c",		/* idle ip index : 12 */
-			  "13830000.i2c",		/* idle ip index : 13 */
-			  "138d0000.i2c",		/* idle ip index : 14 */
-			  "138e0000.i2c",		/* idle ip index : 15 */
-			  "13850000.i2c",		/* idle ip index : 16 */
-			  "13860000.i2c",		/* idle ip index : 17 */
-
-			  "13540000.dwmmc0",		/* idle ip index : 18 */
-			  "13560000.dwmmc2",		/* idle ip index : 19 */
-
-			  "13600000.usb",		/* idle ip index : 20 */
-
-			  "100c0000.spi",		/* idle ip index : 21 */
-			  "13900000.spi",		/* idle ip index : 22 */
-			  "13910000.spi",		/* idle ip index : 23 */
-			  "13920000.spi",		/* idle ip index : 24 */
-			  "13930000.spi",		/* idle ip index : 25 */
-
-			  "10500000.mailbox-cp",	/* idle ip index : 26 */
-			  "10570000.mailbox-gnss",	/* idle ip index : 27 */
-
-			  "14830000.decon_fb",		/* idle ip index : 28 */
-			  "pd-g3d",			/* idle ip index : 29 */
-			  "pd-isp",			/* idle ip index : 30 */
-			  "pd-mfcmscl",			/* idle ip index : 31 */
-			  "148f0000.lpass";             /* idle ip index : 32 */
-		idle_ip_mask {
-			sicd: SYS_SICD {
-				mode-index = <0>;
-				ref-idle-ip = <0>,  <1>,  <2>,  <3>,  <4>,  <5>,  <6>,  <7>,  <8>,  <9>,
-					     <10>, <11>, <12>, <13>, <14>, <15>, <16>, <17>, <18>, <19>,
-					     <20>, <21>, <22>, <23>, <24>, <25>, <26>, <27>, <28>, <29>,
-					     <30>, <31>, <32>;
-			};
-		};
-	};
-
-	fips-fmp {
-		compatible = "samsung,exynos-fips-fmp";
 	};
 };
